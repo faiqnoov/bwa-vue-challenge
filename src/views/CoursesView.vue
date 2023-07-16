@@ -23,6 +23,22 @@
               <label for="premium" class="ml-2">Premium</label>
             </div>
           </div>
+
+          <h2 class="font-medium mt-5 mb-2">Filter by Level</h2>
+          <div class="space-y-2">
+            <div class="flex items-center">
+              <input type="checkbox" v-model="filterLevels" value="all" class="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2" id="all">
+              <label for="all" class="ml-2">All Levels</label>
+            </div>
+            <div class="flex items-center">
+              <input type="checkbox" v-model="filterLevels" value="beginner" class="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2" id="beginner">
+              <label for="beginner" class="ml-2">Beginner</label>
+            </div>
+            <div class="flex items-center">
+              <input type="checkbox" v-model="filterLevels" value="intermediate" class="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2" id="intermediate">
+              <label for="intermediate" class="ml-2">Intermediate</label>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -35,7 +51,12 @@
             </span>
             <div class="p-4">
               <h2 class="text-lg font-bold">{{ course.title }}</h2>
-              <p class="text-slate-600">Rp {{ course.price }}</p>
+              <div class="flex justify-between mt-2">
+                <p class="text-slate-600">Rp {{ course.price }}</p>
+                <span class=" px-2 py-1 bg-yellow-600 bg-opacity-70 rounded-xl">
+                  <p class="capitalize text-white text-xs">{{ course.level }}</p>
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -54,19 +75,33 @@ import getCollection from '@/composables/getCollections'
 export default {
   name: 'CoursesView',
   setup() {
+    // const courses = ref([]);
     const { documents: courses } = getCollection('courses')
+    // const { documents } = getCollection('courses')
+    const filterTypes = ref([])
+    const filterLevels = ref([])
 
     // Create a computed property to filter the courses based on selected types
-    const filterTypes = ref([])
-    const filteredCourses = computed(() => {
-      if (filterTypes.value.length === 0) {
-        return courses.value
-      } else {
-        return courses.value.filter(course => filterTypes.value.includes(course.type))
-      }
-    })
+    // const filteredCourses = computed(() => {
+    //   if (filterTypes.value.length === 0) {
+    //     return courses.value
+    //   } else {
+    //     return courses.value.filter(course => filterTypes.value.includes(course.type))
+    //   }
+    // })
 
-    return { filterTypes, filteredCourses }
+    const filteredCourses = computed(() => {
+      // Apply filters based on selected types and levels
+      return courses.value.filter(course => {
+        const typeFilterPassed = filterTypes.value.length === 0 || filterTypes.value.includes(course.type);
+        const levelFilterPassed = filterLevels.value.length === 0 || filterLevels.value.includes(course.level);
+        return typeFilterPassed && levelFilterPassed;
+      });
+    });
+
+    return { filterTypes, filterLevels, filteredCourses };
+
+    // return { filterTypes, filteredCourses }
   }
 }
 </script>
